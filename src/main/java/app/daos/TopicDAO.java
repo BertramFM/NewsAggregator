@@ -145,37 +145,34 @@ public class TopicDAO implements GenericDAO<Topic, Long> {
         return true;
     }
 
-    public Source findOrCreate(String name, ApiProvider apiProvider, String url) {
-        if (name == null || name.isEmpty() || apiProvider == null || url == null || url.isEmpty()) {
-            throw new ApiException(400, "Source name and provider is required");
+    public Topic findOrCreate(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new ApiException(400, "Topic name is required");
         }
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
             try {
-                List<Source> found = em.createQuery(
-                                "SELECT s FROM Source s WHERE s.sourceName = :name AND s.apiProvider = :provider", Source.class)
+                List<Topic> found = em.createQuery(
+                                "SELECT t FROM Topic t WHERE t.topicName = :name", Topic.class)
                         .setParameter("name", name)
-                        .setParameter("provider", apiProvider)
                         .getResultList();
 
-                Source source;
+                Topic topic;
                 if (found.isEmpty()){
-                    source = Source.builder()
-                            .sourceName(name)
-                            .apiProvider(apiProvider)
-                            .url(url)
+                    topic = Topic.builder()
+                            .topicName(name)
                             .build();
-                    em.persist(source);
+                    em.persist(topic);
                 } else {
-                    source = found.getFirst();
+                    topic = found.getFirst();
                 }
                 em.getTransaction().commit();
-                return source;
+                return topic;
             } catch (RuntimeException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
-                throw new ApiException(500, "Find or create Source failed: " + e.getMessage());
+                throw new ApiException(500, "Find or create Topic failed: " + e.getMessage());
             }
         }
     }
