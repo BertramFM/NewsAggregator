@@ -1,0 +1,75 @@
+@startuml
+!pragma layout smetana
+title NewsSite DomainModel
+
+hide empty members
+
+class User {
+  - id : int
+  - email : String
+  - passwordHash : String
+  - createdAt : LocalDateTime
+}
+
+class Source {
+  - id : int
+  - sourceName : String
+  - apiProvider : ApiProvider
+  - url : String
+}
+
+enum ApiProvider {
+  NewsAPI
+  NewsDATA
+  Guardian
+  NewsDataIO
+}
+
+class Topic {
+  - id : int
+  - topicName : String
+}
+
+class Article {
+  - id : int
+  - title : String
+  - text : String
+  - country : String
+  - publishedAt : LocalDateTime
+  - sourceUrl : String
+  - sentimentScore : Double
+  - aiSummary : String
+}
+
+class Subscription {
+  - id : int
+  - frequency : Frequency
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+}
+
+class DigestLog {
+  - id : int
+  - digestText : String
+  - generatedAt : LocalDateTime
+}
+
+' ---- Relationer ----
+
+Source "1" -- "0..*" Article
+Source -- ApiProvider
+
+Article "0..*" -- "0..*" Topic
+
+User "1" -- "0..*" Subscription
+Subscription "0..*" -- "1" Topic
+Subscription -- Frequency
+
+User "1" -- "0..*" DigestLog
+DigestLog "0..*" -- "0..*" Article
+DigestLog "0..*" -- "0..1" Topic
+
+@enduml
