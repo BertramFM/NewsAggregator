@@ -72,7 +72,6 @@ public class Article {
         topic.getArticles().remove(this);
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
