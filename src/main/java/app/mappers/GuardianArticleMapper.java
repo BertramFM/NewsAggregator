@@ -11,7 +11,7 @@ public class GuardianArticleMapper {
 
     private static final int snippetLength = 300;
 
-    public static Article toArticle(GuardianArticleDTO dto, Source source, Topic topic) {
+    public static Article toEntity(GuardianArticleDTO dto, Source source, Topic topic) {
 
         String bodyText = (dto.getFields() != null) ? dto.getFields().getBodyText() : null;
 
@@ -19,6 +19,7 @@ public class GuardianArticleMapper {
                 .externalId(dto.getId())
                 .title(dto.getWebTitle())
                 .snippet(createSnippet(bodyText))
+                .fullText(bodyText)
                 .publishedAt(dto.getWebPublicationDate().withOffsetSameInstant(ZoneOffset.UTC). toLocalDateTime())
                 .sourceUrl(dto.getWebUrl())
                 .source(source)
