@@ -58,6 +58,7 @@ public class SyncService {
 
     private int syncTopic(GuardianTopic guardianTopic, Topic topic, Source source, LocalDate fromDate) {
         int saved = 0;
+        int notSaved = 0;
         int page = 1;
         int totalPages = 1;
 
@@ -72,8 +73,11 @@ public class SyncService {
                 for (GuardianArticleDTO articleDTO : response.getResults()){
                     if (saveIfNew(articleDTO, source, topic)) {
                         saved++;
+                    } else {
+                        notSaved++;
                     }
                 }
+                log.info("Did not save {} articles from topic {} on page {}", notSaved, guardianTopic, page);
             }
             page++;
         }
@@ -83,14 +87,17 @@ public class SyncService {
     private boolean saveIfNew(GuardianArticleDTO articleDTO, Source source, Topic topic){
         // filters out non-articles
         if (!"article".equals(articleDTO.getType())){
+            log.info("Skipping since not an article: {} | {}", articleDTO.getId(), articleDTO.getType());
             return false;
         }
         // filters out articles without body text
         if (articleDTO.getFields() == null || articleDTO.getFields().getBodyText() == null || articleDTO.getFields().getBodyText().isEmpty()){
+            log.info("Article has no body text: {} | {}", articleDTO.getId(), articleDTO.getType());
             return false;
         }
         // checks if article already exists in db using Guardian apis provided article id
         if (articleDAO.existsByExternalId(articleDTO.getId())){
+            log.info("Article already exists: {} | {}", articleDTO.getId(), articleDTO.getType());
             return false;
         }
 
