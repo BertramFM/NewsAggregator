@@ -3,10 +3,9 @@ package app.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "articles")
@@ -50,16 +49,20 @@ public class Article {
 
 
     // ======== Relations ========
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "source_id", nullable = false)
+    @ToString.Exclude
     private Source source;
 
     @Builder.Default
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "article_topics",
             joinColumns = @JoinColumn(name = "article_id"),
             inverseJoinColumns = @JoinColumn(name = "topic_id"))
-    private List<Topic> topics = new ArrayList<>();
+    @ToString.Exclude
+    private Set<Topic> topics = new HashSet<>();
+
     // ===========================
 
     public void addTopic(Topic topic) {
@@ -76,7 +79,7 @@ public class Article {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Article other)) return false;
-        return id != null && id.equals(other.id);
+        return id != null && id.equals(other.getId());
     }
 
     @Override
