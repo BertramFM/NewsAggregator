@@ -21,6 +21,7 @@ public class GuardianArticleDTO {
     // Den her er topic
     @JsonProperty
     private String sectionId;
+
     @JsonProperty
     private String sectionName;
 
