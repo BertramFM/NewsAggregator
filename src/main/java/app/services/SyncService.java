@@ -15,11 +15,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.*;
 
 public class SyncService {
     private static final Logger log = LoggerFactory.getLogger(SyncService.class);
 
     private static final int MaxPagesPerTopic = 5;
+
+    private static final int threadPoolSize = 3;
+    private static final int topicTimeoutMin = 2;
 
     private final ArticleDAO articleDAO;
     private final TopicDAO topicDAO;
@@ -39,21 +45,47 @@ public class SyncService {
     public int syncFromDate(LocalDate fromDate) {
         Source source = sourceDAO.findOrCreate("The Guardian", ApiProvider.GUARDIAN, "https://www.theguardian.com");
 
-        int totalSaved = 0;
+        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+        Map<GuardianTopic, Future<Integer>> futures = new HashMap<>();
 
-        for (GuardianTopic guardianTopic : GuardianTopic.values()) {
+        try {
+            for (GuardianTopic guardianTopic : GuardianTopic.values()) {
+                Future<Integer> taskResult = executor.submit(() -> syncTopicPool(guardianTopic, source, fromDate));
+                futures.put(guardianTopic, taskResult);
+            }
 
+            int totalSaved = 0;
+            for (Map.Entry<GuardianTopic, Future<Integer>> entry : futures.entrySet()) {
+                try {
+                    totalSaved += entry.getValue().get(topicTimeoutMin, TimeUnit.MINUTES);
+                } catch (TimeoutException e) {
+                    entry.getValue().cancel(true);
+                    log.error("Timeout syncing topic: {} | {}", entry.getKey(), e.getMessage());
+                } catch (ExecutionException e){
+                    log.error("Error syncing topic: {} | {}", entry.getKey(), e.getMessage());
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.error("Sync interrupted");
+                    break;
+                }
+            }
+        log.info("Sync finished. Total saved: {}", totalSaved);
+        return totalSaved;
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    private int syncTopicPool(GuardianTopic guardianTopic, Source source, LocalDate fromDate) {
             try {
                 Topic topic = topicDAO.findOrCreate(guardianTopic.getSectionId());
                 int saved = syncTopic(guardianTopic, topic, source, fromDate);
-                totalSaved += saved;
-                log.info("Saved {} articles from topic {}", saved, guardianTopic);
+                log.info("Synced {} articles from topic {}", saved, guardianTopic);
+                return saved;
             } catch (RuntimeException e) {
                 log.error("Error syncing topic: '{}' | {}", guardianTopic, e.getMessage());
+                return 0;
             }
-        }
-        log.info("Sync finished. Total saved: {}", totalSaved);
-        return totalSaved;
     }
 
     private int syncTopic(GuardianTopic guardianTopic, Topic topic, Source source, LocalDate fromDate) {
@@ -77,7 +109,9 @@ public class SyncService {
                         notSaved++;
                     }
                 }
-                log.info("Did not save {} articles from topic {} on page {}", notSaved, guardianTopic, page);
+                if (notSaved > 0) {
+                    log.info("Did not save {} articles from topic {} on page {}", notSaved, guardianTopic, page);
+                }
             }
             page++;
         }
@@ -110,6 +144,4 @@ public class SyncService {
             return false;
         }
     }
-
-
 }
