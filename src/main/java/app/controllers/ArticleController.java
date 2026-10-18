@@ -27,16 +27,7 @@ public class ArticleController {
 
     public void delete(Context ctx) {
         Long id = parseId(ctx);
-        boolean deleted = articleDAO.delete(id);
-        if (!deleted) {
-            ctx.status(HttpStatus.NOT_FOUND);
-            ctx.json(Map.of(
-                    "message", "No article found with id",
-                    "id", id
-            ));
-            throw new ApiException(404, "Article not found with id: " + id);
-        }
-
+        articleDAO.delete(id);
         ctx.status(HttpStatus.OK);
         ctx.json(Map.of(
                 "message", "Article deleted",
@@ -49,11 +40,6 @@ public class ArticleController {
         Article article = articleDAO.getById(id);
 
         if (article == null) {
-            ctx.status(HttpStatus.NOT_FOUND);
-            ctx.json(Map.of(
-                    "message", "No article found with id",
-                    "id", id
-            ));
             throw new ApiException(404, "Article not found with id: " + id);
         }
 
