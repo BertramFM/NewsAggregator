@@ -80,7 +80,7 @@ public class ArticleDAO implements GenericDAO<Article, Long> {
     }
 
 
-    public boolean existsByExternalId(Long externalId) {
+    public boolean existsByExternalId(String externalId) {
         if (externalId == null) {
             throw new ApiException(400, "External id is required");
         }
