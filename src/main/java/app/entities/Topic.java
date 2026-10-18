@@ -26,7 +26,8 @@ public class Topic {
 
     // ======== Relations ========
     @Builder.Default
-    @ManyToMany(mappedBy = "topics")
+    @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Article> articles = new ArrayList<>();
     // ===========================
 
@@ -35,7 +36,7 @@ public class Topic {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Topic other)) return false;
-        return id != null && id.equals(other.id);
+        return id != null && id.equals(other.getId());
     }
 
     @Override
