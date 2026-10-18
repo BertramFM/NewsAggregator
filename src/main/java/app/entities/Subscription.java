@@ -38,7 +38,7 @@ public class Subscription {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Subscription other)) return false;
-        return id != null && id.equals(other.id);
+        return id != null && id.equals(other.getId());
     }
 
     @Override
