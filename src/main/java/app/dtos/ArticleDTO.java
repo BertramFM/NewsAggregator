@@ -26,7 +26,7 @@ public class ArticleDTO {
     private LocalDateTime publishedAt;
     private String sourceUrl;
     private String sourceName;
-    private List<String> topicNames;
+    private String topicNames;
     private Double sentimentScore;
     private String aiSummary;
 
@@ -39,9 +39,7 @@ public class ArticleDTO {
         this.sourceUrl = article.getSourceUrl();
         this.sourceName = article.getSource().getSourceName();
 
-        this.topicNames = article.getTopics()
-                .stream().map(Topic::getTopicName)
-                .toList();
+        this.topicNames = article.getTopic().getTopicName();
 
         this.sentimentScore = article.getSentimentScore();
         this.aiSummary = article.getAiSummary();
