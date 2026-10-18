@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "digest_logs")
@@ -27,6 +29,7 @@ public class DigestLog {
 
 
     // ======== Relations ========
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -34,13 +37,22 @@ public class DigestLog {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id", nullable = false)
     private Topic topic;
+
+    @Builder.Default
+    @ManyToMany
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "article_id"),
+            inverseJoinColumns = @JoinColumn(name = "article_id")
+    )
+    private List<Article> articles = new ArrayList<>();
+
     // ===========================
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof DigestLog other)) return false;
-        return id != null && id.equals(other.id);
+        return id != null && id.equals(other.getId());
     }
 
     @Override
