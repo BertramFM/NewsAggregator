@@ -41,7 +41,8 @@ public class DigestLog {
     @Builder.Default
     @ManyToMany
     @JoinTable(
-            joinColumns = @JoinColumn(name = "article_id"),
+            name = "digest_log_articles",
+            joinColumns = @JoinColumn(name = "digest_log_id"),
             inverseJoinColumns = @JoinColumn(name = "article_id")
     )
     private List<Article> articles = new ArrayList<>();
