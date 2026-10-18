@@ -12,7 +12,7 @@ import java.util.List;
 public class ArticleDAO implements GenericDAO<Article, Long> {
     private final EntityManagerFactory emf;
 
-    public ArticleDAO(EntityManagerFactory emf){
+    public ArticleDAO(EntityManagerFactory emf) {
         this.emf = emf;
     }
 
@@ -43,7 +43,15 @@ public class ArticleDAO implements GenericDAO<Article, Long> {
         }
         try (EntityManager em = emf.createEntityManager()) {
             try {
-                return em.find(Article.class, id);
+                return em.createQuery("""
+                SELECT a FROM Article a
+                JOIN FETCH a.source
+                LEFT JOIN FETCH a.topics
+                WHERE a.id = :id
+                """, Article.class).setParameter("id", id)
+                        .getResultStream()
+                        .findFirst()
+                        .orElse(null);
             } catch (PersistenceException e) {
                 throw new ApiException(500, "Get Article failed: " + e.getMessage());
             }
@@ -54,7 +62,12 @@ public class ArticleDAO implements GenericDAO<Article, Long> {
     public List<Article> getAll() {
         try (EntityManager em = emf.createEntityManager()) {
             try {
-                TypedQuery<Article> query = em.createQuery("SELECT f FROM Article f", Article.class);
+                TypedQuery<Article> query = em.createQuery("""
+                SELECT a FROM Article a
+                JOIN FETCH a.source
+                LEFT JOIN FETCH a.topics
+                ORDER BY a.publishedAt DESC
+                """, Article.class);
                 return query.getResultList();
             } catch (PersistenceException e) {
                 throw new ApiException(500, "Get Article failed: " + e.getMessage());
@@ -97,27 +110,27 @@ public class ArticleDAO implements GenericDAO<Article, Long> {
     }
 
     @Override
-    public Article update(Article Article) {
+    public Article update(Article article) {
 
-        if (Article == null || Article.getId() == null) {
-            throw new ApiException(400, "Movie id is required");
+        if (article == null || article.getId() == null) {
+            throw new ApiException(400, "Article id is required");
         }
 
         Article updated;
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
             try {
-                Article existing = em.find(Article.class, Article.getId());
+                Article existing = em.find(Article.class, article.getId());
                 if (existing == null) {
-                    throw new ApiException(404, "Movie not found");
+                    throw new ApiException(404, "Article not found");
                 }
-                updated = em.merge(Article);
+                updated = em.merge(article);
                 em.getTransaction().commit();
             } catch (PersistenceException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
-                throw new ApiException(500, "Update Movie failed: " + e.getMessage());
+                throw new ApiException(500, "Update Article failed: " + e.getMessage());
             } catch (RuntimeException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
@@ -132,24 +145,24 @@ public class ArticleDAO implements GenericDAO<Article, Long> {
     public boolean delete(Long id) {
 
         if (id == null) {
-            throw new ApiException(400, "Movie id is required");
+            throw new ApiException(400, "Article id is required");
         }
 
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
             try {
-                Article ArticleToRemove = em.find(Article.class, id);
-                if (ArticleToRemove != null) {
-                    em.remove(ArticleToRemove);
+                Article articleToRemove = em.find(Article.class, id);
+                if (articleToRemove != null) {
+                    em.remove(articleToRemove);
                 } else {
-                    throw new ApiException(404, "Article not found");
+                    return false;
                 }
                 em.getTransaction().commit();
             } catch (PersistenceException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
-                throw new ApiException(500, "Delete Movie failed: " + e.getMessage());
+                throw new ApiException(500, "Delete Article failed: " + e.getMessage());
             } catch (RuntimeException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
