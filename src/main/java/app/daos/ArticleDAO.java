@@ -1,6 +1,7 @@
 package app.daos;
 
 import app.entities.Article;
+import app.entities.DigestLog;
 import app.exceptions.ApiException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -46,7 +47,7 @@ public class ArticleDAO implements GenericDAO<Article, Long> {
                 return em.createQuery("""
                 SELECT a FROM Article a
                 JOIN FETCH a.source
-                LEFT JOIN FETCH a.topics
+                JOIN FETCH a.topic
                 WHERE a.id = :id
                 """, Article.class).setParameter("id", id)
                         .getResultStream()
@@ -65,7 +66,7 @@ public class ArticleDAO implements GenericDAO<Article, Long> {
                 TypedQuery<Article> query = em.createQuery("""
                 SELECT a FROM Article a
                 JOIN FETCH a.source
-                LEFT JOIN FETCH a.topics
+                JOIN FETCH a.topic
                 ORDER BY a.publishedAt DESC
                 """, Article.class);
                 return query.getResultList();
@@ -152,12 +153,22 @@ public class ArticleDAO implements GenericDAO<Article, Long> {
             em.getTransaction().begin();
             try {
                 Article articleToRemove = em.find(Article.class, id);
-                if (articleToRemove != null) {
-                    em.remove(articleToRemove);
-                } else {
-                    return false;
+
+                if (articleToRemove == null) {
+                    throw new ApiException(404, "Article not found");
                 }
+
+                List<DigestLog> digestLogs = em.createQuery(
+                        "SELECT d FROM DigestLog d JOIN d.articles a WHERE a.id = :id", DigestLog.class)
+                        .setParameter("id", id)
+                        .getResultList();
+
+                for (DigestLog digestLog : digestLogs) {
+                    digestLog.getArticles().remove(articleToRemove);
+                }
+                em.remove(articleToRemove);
                 em.getTransaction().commit();
+
             } catch (PersistenceException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
