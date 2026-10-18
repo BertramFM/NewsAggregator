@@ -1,0 +1,20 @@
+### hent alle
+
+GET localhost:7070/articles
+Accept: application/json
+
+### hent med id format fejl
+
+GET localhost:7070/article/abc
+Accept: application/json
+
+### hent med forkert id
+
+GET localhost:7070/article/9999999999
+Accept: application/json
+
+### hent med id korrekt
+
+GET localhost:7070/article/1
+Accept: application/json
+
