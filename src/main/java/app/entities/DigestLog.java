@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "digest_logs")
@@ -25,27 +25,30 @@ public class DigestLog {
 
     @Builder.Default
     @Column(nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime generatedAt = LocalDateTime.now();
 
 
     // ======== Relations ========
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     @JoinColumn(name = "topic_id", nullable = false)
     private Topic topic;
 
     @Builder.Default
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
+    @ToString.Exclude
     @JoinTable(
-            name = "digest_log_articles",
-            joinColumns = @JoinColumn(name = "digest_log_id"),
+            name = "digest_articles",
+            joinColumns = @JoinColumn(name = "digest_id"),
             inverseJoinColumns = @JoinColumn(name = "article_id")
     )
-    private List<Article> articles = new ArrayList<>();
+    private Set<Article> articles = new HashSet<>();
 
     // ===========================
 
