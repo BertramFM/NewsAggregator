@@ -20,12 +20,11 @@ public class GuardianArticleMapper {
                 .title(dto.getWebTitle())
                 .snippet(createSnippet(bodyText))
                 .fullText(bodyText)
+                .topic(topic)
                 .publishedAt(dto.getWebPublicationDate().withOffsetSameInstant(ZoneOffset.UTC). toLocalDateTime())
                 .sourceUrl(dto.getWebUrl())
                 .source(source)
                 .build();
-
-        article.getTopics().add(topic);
 
         return article;
     }
