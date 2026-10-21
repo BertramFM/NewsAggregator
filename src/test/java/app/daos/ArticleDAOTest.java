@@ -2,9 +2,11 @@ package app.daos;
 
 import app.config.HibernateTestConfig;
 import app.entities.Article;
+import app.entities.DigestLog;
 import app.exceptions.ApiException;
 import app.testUtils.DatabaseTestPopulator;
 import app.testUtils.DatabaseTestPopulator.SeedData;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +65,7 @@ class ArticleDAOTest {
 
     @Test
     void existsByExternalId_trueForExistingFalseOtherwise() {
-        assertTrue(dao.existsByExternalId("test/article-1"));
+        assertTrue(dao.existsByExternalId("test/article1"));
         assertFalse(dao.existsByExternalId("findes/ikke"));
     }
 
@@ -81,5 +83,21 @@ class ArticleDAOTest {
     @Test
     void delete_throwsWhenArticleDoesNotExist() {
         assertThrows(ApiException.class, () -> dao.delete(999_999L));
+    }
+
+    @Test
+    void delete_articleInDigestLog_removesLinkAndKeepsDigestLog() {
+        Long articleId = seed.article1().getId();
+        Long logId = seed.digestLog().getId();
+
+        assertTrue(dao.delete(articleId));
+
+        assertNull(dao.getById(articleId));
+        try (EntityManager em = emf.createEntityManager()) {
+            DigestLog log = em.find(DigestLog.class, logId);
+            assertNotNull(log);
+            assertEquals(1, log.getArticles().size());
+            assertEquals("New chip announced", log.getArticles().iterator().next().getTitle());
+        }
     }
 }
