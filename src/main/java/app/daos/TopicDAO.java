@@ -1,7 +1,5 @@
 package app.daos;
 
-import app.entities.ApiProvider;
-import app.entities.Source;
 import app.entities.Topic;
 import app.exceptions.ApiException;
 import jakarta.persistence.EntityManager;
@@ -145,7 +143,7 @@ public class TopicDAO implements GenericDAO<Topic, Long> {
         return true;
     }
 
-    public Topic findOrCreate(String name) {
+    public Topic findOrCreateByName(String name) {
         if (name == null || name.isEmpty()) {
             throw new ApiException(400, "Topic name is required");
         }

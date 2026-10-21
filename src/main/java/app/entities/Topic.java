@@ -26,7 +26,7 @@ public class Topic {
 
     // ======== Relations ========
     @Builder.Default
-    @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Article> articles = new ArrayList<>();
     // ===========================

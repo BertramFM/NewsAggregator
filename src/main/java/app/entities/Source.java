@@ -23,15 +23,17 @@ public class Source {
     private String sourceName;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private ApiProvider apiProvider;
 
     @Column(nullable = false)
     private String url;
 
     // ======== Relations ========
+    // Ikke sikker om jeg vil have cascade.type all
     @Builder.Default
-    @OneToMany(mappedBy = "source", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "source", fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Article> articles = new ArrayList<>();
     // ===========================
 

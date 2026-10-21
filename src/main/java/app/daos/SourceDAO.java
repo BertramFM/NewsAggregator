@@ -145,8 +145,8 @@ public class SourceDAO implements GenericDAO<Source, Long> {
     }
 
     public Source findOrCreate(String name, ApiProvider apiProvider, String url) {
-        if (name == null || name.isEmpty() || apiProvider == null || url == null || url.isEmpty()) {
-            throw new ApiException(400, "Source name and provider is required");
+        if (name == null || name.isBlank() || apiProvider == null || url == null || url.isBlank()) {
+            throw new ApiException(400, "valid source name, provider and url is required");
         }
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();

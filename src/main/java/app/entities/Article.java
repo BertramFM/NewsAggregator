@@ -52,31 +52,12 @@ public class Article {
     @ToString.Exclude
     private Source source;
 
-//    @Builder.Default
-//    @ManyToMany(fetch = FetchType.LAZY)
-//    @JoinTable(name = "article_topics",
-//            joinColumns = @JoinColumn(name = "article_id"),
-//            inverseJoinColumns = @JoinColumn(name = "topic_id"))
-//    @ToString.Exclude
-//    private Set<Topic> topics = new HashSet<>();
-
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id", nullable = false)
     @ToString.Exclude
     private Topic topic;
 
     // ===========================
-
-//    public void addTopic(Topic topic) {
-//        topics.add(topic);
-//        topic.getArticles().add(this);
-//    }
-//
-//    public void removeTopic(Topic topic) {
-//        topics.remove(topic);
-//        topic.getArticles().remove(this);
-//    }
 
     @Override
     public boolean equals(Object o) {

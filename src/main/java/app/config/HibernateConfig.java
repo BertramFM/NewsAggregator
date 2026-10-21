@@ -1,4 +1,4 @@
-package app.configs;
+package app.config;
 
 import app.utils.Utils;
 import jakarta.persistence.EntityManagerFactory;
@@ -33,7 +33,7 @@ public final class HibernateConfig {
         validate    |	Rører intet, fejler bare hvis skema ikke matcher entities
         none        |  	Gør ingenting — I styrer skemaet 100% selv
          */
-        props.put("hibernate.hbm2ddl.auto", "create");
+        props.put("hibernate.hbm2ddl.auto", "update");
 
         if (System.getenv("DEPLOYED") != null) {
             setDeployedProperties(props);

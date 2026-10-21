@@ -66,7 +66,6 @@ public class SyncService {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     log.error("Sync interrupted");
-                    break;
                 }
             }
         log.info("Sync finished. Total saved: {}", totalSaved);
@@ -78,7 +77,7 @@ public class SyncService {
 
     private int syncTopicPool(GuardianTopic guardianTopic, Source source, LocalDate fromDate) {
             try {
-                Topic topic = topicDAO.findOrCreate(guardianTopic.getSectionId());
+                Topic topic = topicDAO.findOrCreateByName(guardianTopic.getSectionId());
                 int saved = syncTopic(guardianTopic, topic, source, fromDate);
                 log.info("Synced {} articles from topic {}", saved, guardianTopic);
                 return saved;

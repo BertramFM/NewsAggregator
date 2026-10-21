@@ -71,6 +71,7 @@ class ArticleDAOTest {
     void delete_removesArticle() {
         Long id = seed.article1().getId();
 
+        assertEquals(2, dao.getAll().size());
         assertTrue(dao.delete(id));
 
         assertNull(dao.getById(id));
