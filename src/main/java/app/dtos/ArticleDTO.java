@@ -1,14 +1,12 @@
 package app.dtos;
 
 import app.entities.Article;
-import app.entities.Topic;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
@@ -26,7 +24,7 @@ public class ArticleDTO {
     private LocalDateTime publishedAt;
     private String sourceUrl;
     private String sourceName;
-    private String topicNames;
+    private String topicName;
     private Double sentimentScore;
     private String aiSummary;
 
@@ -39,7 +37,7 @@ public class ArticleDTO {
         this.sourceUrl = article.getSourceUrl();
         this.sourceName = article.getSource().getSourceName();
 
-        this.topicNames = article.getTopic().getTopicName();
+        this.topicName = article.getTopic().getTopicName();
 
         this.sentimentScore = article.getSentimentScore();
         this.aiSummary = article.getAiSummary();

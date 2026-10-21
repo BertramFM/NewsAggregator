@@ -26,8 +26,8 @@ public class JavalinServer {
                     mapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)));
 
             config.routes.get("/articles", articleController::getArticles);
-            config.routes.get("/article/{id}", articleController::getById);
-            config.routes.delete("/article/{id}", articleController::delete);
+            config.routes.get("/articles/{id}", articleController::getById);
+            config.routes.delete("/articles/{id}", articleController::delete);
 
             config.routes.exception(ApiException.class, (e, ctx) -> {
                 ctx.status(e.getCode());
