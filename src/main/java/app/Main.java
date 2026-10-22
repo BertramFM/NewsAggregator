@@ -29,6 +29,5 @@ public class Main {
 
 
         JavalinServer.startServer(emf, 7070);
-
     }
 }
