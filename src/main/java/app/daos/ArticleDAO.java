@@ -8,6 +8,7 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class ArticleDAO implements GenericDAO<Article, Long> {
@@ -182,5 +183,19 @@ public class ArticleDAO implements GenericDAO<Article, Long> {
             }
         }
         return true;
+    }
+
+    public LocalDateTime findLatestPublishedAt(Long topicId) {
+        try (EntityManager em = emf.createEntityManager()) {
+            try {
+                return em.createQuery(
+                        "SELECT MAX(a.publishedAt) FROM Article a WHERE a.topic.id = :topicId",
+                        LocalDateTime.class)
+                        .setParameter("topicId", topicId)
+                        .getSingleResult();
+            } catch (PersistenceException e) {
+                throw new ApiException(500, "Get publishedAt failed: " + e.getMessage());
+            }
+        }
     }
 }
