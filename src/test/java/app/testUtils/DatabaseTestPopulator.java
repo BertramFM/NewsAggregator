@@ -56,7 +56,9 @@ public class DatabaseTestPopulator {
 
         DigestLog digestLog = DigestLog.builder()
                 .digestText("Test-digest")
-                .user(user)
+                .frequency(Frequency.DAILY)
+                .periodStart(LocalDateTime.of(2026, 10, 13, 0, 0))
+                .periodEnd(LocalDateTime.of(2026, 10, 20, 0, 0))
                 .topic(science)
                 .articles(new HashSet<>(Set.of(article1, article2)))
                 .build();

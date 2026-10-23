@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "digest_logs")
+@Table(name = "digest_logs", uniqueConstraints = @UniqueConstraint(columnNames = {"topic_id", "frequency", "periodStart"}))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,13 +27,18 @@ public class DigestLog {
     @Column(nullable = false)
     private LocalDateTime generatedAt = LocalDateTime.now();
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Frequency frequency;
+
+    @Column(nullable = false)
+    private LocalDateTime periodStart;
+
+    @Column(nullable = false)
+    private LocalDateTime periodEnd;
+
 
     // ======== Relations ========
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @ToString.Exclude
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
