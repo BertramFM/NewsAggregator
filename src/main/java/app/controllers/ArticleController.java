@@ -2,6 +2,7 @@ package app.controllers;
 
 import app.daos.ArticleDAO;
 import app.dtos.ArticleDTO;
+import app.dtos.ArticleWithTextDTO;
 import app.entities.Article;
 import app.exceptions.ApiException;
 import io.javalin.http.Context;
@@ -44,7 +45,7 @@ public class ArticleController {
         }
 
         ctx.status(HttpStatus.OK);
-        ctx.json(new ArticleDTO(article));
+        ctx.json(new ArticleWithTextDTO(article));
     }
 
     private Long parseId(Context ctx) {
