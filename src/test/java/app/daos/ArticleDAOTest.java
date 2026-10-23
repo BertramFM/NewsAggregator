@@ -3,6 +3,7 @@ package app.daos;
 import app.config.HibernateTestConfig;
 import app.entities.Article;
 import app.entities.DigestLog;
+import app.entities.Topic;
 import app.exceptions.ApiException;
 import app.testUtils.DatabaseTestPopulator;
 import app.testUtils.DatabaseTestPopulator.SeedData;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -99,5 +101,29 @@ class ArticleDAOTest {
             assertEquals(1, log.getArticles().size());
             assertEquals("New chip announced", log.getArticles().iterator().next().getTitle());
         }
+    }
+
+    @Test
+    void findLatestPublishedAt_returnNewestForThatTopic(){
+        Article newerScience = Article.builder()
+                .externalId("test/article3")
+                .title("Newest science update")
+                .publishedAt(LocalDateTime.of(2026, 10, 20, 8, 30))
+                .source(seed.source())
+                .topic(seed.science())
+                .build();
+        dao.create(newerScience);
+
+        assertEquals(LocalDateTime.of(2026, 10, 20, 8, 30),
+                dao.findLatestPublishedAt(seed.science().getId()));
+
+        assertEquals(LocalDateTime.of(2026, 10, 19, 12, 0),
+                dao.findLatestPublishedAt(seed.technology().getId()));
+    }
+
+    @Test
+    void findLatestPublishedAt_returnNullWhenTopicHasNoArticles(){
+        Topic empty = new TopicDAO(emf).create(Topic.builder().topicName("finance").build());
+        assertNull(dao.findLatestPublishedAt(empty.getId()));
     }
 }
