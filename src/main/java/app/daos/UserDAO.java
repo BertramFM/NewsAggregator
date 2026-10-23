@@ -80,27 +80,27 @@ public class UserDAO implements GenericDAO<User, Long> {
     }
 
     @Override
-    public User update(User User) {
+    public User update(User user) {
 
-        if (User == null || User.getId() == null) {
-            throw new ApiException(400, "Movie id is required");
+        if (user == null || user.getId() == null) {
+            throw new ApiException(400, "User id is required");
         }
 
         User updated;
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
             try {
-                User existing = em.find(User.class, User.getId());
+                User existing = em.find(User.class, user.getId());
                 if (existing == null) {
-                    throw new ApiException(404, "Movie not found");
+                    throw new ApiException(404, "User not found");
                 }
-                updated = em.merge(User);
+                updated = em.merge(user);
                 em.getTransaction().commit();
             } catch (PersistenceException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
-                throw new ApiException(500, "Update Movie failed: " + e.getMessage());
+                throw new ApiException(500, "Update User failed: " + e.getMessage());
             } catch (RuntimeException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
@@ -115,7 +115,7 @@ public class UserDAO implements GenericDAO<User, Long> {
     public boolean delete(Long id) {
 
         if (id == null) {
-            throw new ApiException(400, "Movie id is required");
+            throw new ApiException(400, "User id is required");
         }
 
         try (EntityManager em = emf.createEntityManager()) {
@@ -132,7 +132,7 @@ public class UserDAO implements GenericDAO<User, Long> {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
-                throw new ApiException(500, "Delete Movie failed: " + e.getMessage());
+                throw new ApiException(500, "Delete User failed: " + e.getMessage());
             } catch (RuntimeException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();

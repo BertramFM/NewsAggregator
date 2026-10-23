@@ -80,27 +80,27 @@ public class TopicDAO implements GenericDAO<Topic, Long> {
     }
 
     @Override
-    public Topic update(Topic Topic) {
+    public Topic update(Topic topic) {
 
-        if (Topic == null || Topic.getId() == null) {
-            throw new ApiException(400, "Movie id is required");
+        if (topic == null || topic.getId() == null) {
+            throw new ApiException(400, "Topic id is required");
         }
 
         Topic updated;
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
             try {
-                Topic existing = em.find(Topic.class, Topic.getId());
+                Topic existing = em.find(Topic.class, topic.getId());
                 if (existing == null) {
-                    throw new ApiException(404, "Movie not found");
+                    throw new ApiException(404, "Topic not found");
                 }
-                updated = em.merge(Topic);
+                updated = em.merge(topic);
                 em.getTransaction().commit();
             } catch (PersistenceException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
-                throw new ApiException(500, "Update Movie failed: " + e.getMessage());
+                throw new ApiException(500, "Update Topic failed: " + e.getMessage());
             } catch (RuntimeException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
@@ -115,7 +115,7 @@ public class TopicDAO implements GenericDAO<Topic, Long> {
     public boolean delete(Long id) {
 
         if (id == null) {
-            throw new ApiException(400, "Movie id is required");
+            throw new ApiException(400, "Topic id is required");
         }
 
         try (EntityManager em = emf.createEntityManager()) {
@@ -132,7 +132,7 @@ public class TopicDAO implements GenericDAO<Topic, Long> {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
-                throw new ApiException(500, "Delete Movie failed: " + e.getMessage());
+                throw new ApiException(500, "Delete Topic failed: " + e.getMessage());
             } catch (RuntimeException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();

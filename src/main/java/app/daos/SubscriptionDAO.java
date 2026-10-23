@@ -80,27 +80,27 @@ public class SubscriptionDAO implements GenericDAO<Subscription, Long> {
     }
 
     @Override
-    public Subscription update(Subscription Subscription) {
+    public Subscription update(Subscription subscription) {
 
-        if (Subscription == null || Subscription.getId() == null) {
-            throw new ApiException(400, "Movie id is required");
+        if (subscription == null || subscription.getId() == null) {
+            throw new ApiException(400, "Subscription id is required");
         }
 
         Subscription updated;
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
             try {
-                Subscription existing = em.find(Subscription.class, Subscription.getId());
+                Subscription existing = em.find(Subscription.class, subscription.getId());
                 if (existing == null) {
-                    throw new ApiException(404, "Movie not found");
+                    throw new ApiException(404, "Subscription not found");
                 }
-                updated = em.merge(Subscription);
+                updated = em.merge(subscription);
                 em.getTransaction().commit();
             } catch (PersistenceException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
-                throw new ApiException(500, "Update Movie failed: " + e.getMessage());
+                throw new ApiException(500, "Update Subscription failed: " + e.getMessage());
             } catch (RuntimeException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
@@ -115,7 +115,7 @@ public class SubscriptionDAO implements GenericDAO<Subscription, Long> {
     public boolean delete(Long id) {
 
         if (id == null) {
-            throw new ApiException(400, "Movie id is required");
+            throw new ApiException(400, "Subscription id is required");
         }
 
         try (EntityManager em = emf.createEntityManager()) {
@@ -132,7 +132,7 @@ public class SubscriptionDAO implements GenericDAO<Subscription, Long> {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
-                throw new ApiException(500, "Delete Movie failed: " + e.getMessage());
+                throw new ApiException(500, "Delete Subscription failed: " + e.getMessage());
             } catch (RuntimeException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();

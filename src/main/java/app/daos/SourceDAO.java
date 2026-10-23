@@ -84,7 +84,7 @@ public class SourceDAO implements GenericDAO<Source, Long> {
     public Source update(Source source) {
 
         if (source == null || source.getId() == null) {
-            throw new ApiException(400, "Movie id is required");
+            throw new ApiException(400, "Source id is required");
         }
 
         Source updated;
@@ -93,7 +93,7 @@ public class SourceDAO implements GenericDAO<Source, Long> {
             try {
                 Source existing = em.find(Source.class, source.getId());
                 if (existing == null) {
-                    throw new ApiException(404, "Movie not found");
+                    throw new ApiException(404, "Source not found");
                 }
                 updated = em.merge(source);
                 em.getTransaction().commit();
@@ -101,7 +101,7 @@ public class SourceDAO implements GenericDAO<Source, Long> {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
-                throw new ApiException(500, "Update Movie failed: " + e.getMessage());
+                throw new ApiException(500, "Update Source failed: " + e.getMessage());
             } catch (RuntimeException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
@@ -116,7 +116,7 @@ public class SourceDAO implements GenericDAO<Source, Long> {
     public boolean delete(Long id) {
 
         if (id == null) {
-            throw new ApiException(400, "Movie id is required");
+            throw new ApiException(400, "Source id is required");
         }
 
         try (EntityManager em = emf.createEntityManager()) {
@@ -133,7 +133,7 @@ public class SourceDAO implements GenericDAO<Source, Long> {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
-                throw new ApiException(500, "Delete Movie failed: " + e.getMessage());
+                throw new ApiException(500, "Delete Source failed: " + e.getMessage());
             } catch (RuntimeException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
