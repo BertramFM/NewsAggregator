@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -75,9 +76,13 @@ public class SyncService {
         }
     }
 
-    private int syncTopicPool(GuardianTopic guardianTopic, Source source, LocalDate fromDate) {
+    private int syncTopicPool(GuardianTopic guardianTopic, Source source, LocalDate fallBackDate) {
             try {
                 Topic topic = topicDAO.findOrCreateByName(guardianTopic.getSectionId());
+
+                LocalDateTime latestPublishedAt = articleDAO.findLatestPublishedAt(topic.getId());
+                LocalDate fromDate = (latestPublishedAt != null) ? latestPublishedAt.toLocalDate() : fallBackDate;
+
                 int saved = syncTopic(guardianTopic, topic, source, fromDate);
                 log.info("Synced {} articles from topic {}", saved, guardianTopic);
                 return saved;
@@ -89,11 +94,11 @@ public class SyncService {
 
     private int syncTopic(GuardianTopic guardianTopic, Topic topic, Source source, LocalDate fromDate) {
         int saved = 0;
-        int notSaved = 0;
         int page = 1;
         int totalPages = 1;
 
         while (page <= totalPages && page <= MaxPagesPerTopic) {
+            int notSaved = 0;
             String url = guardianUrlBuilder.buildURLFromDateTopic(guardianTopic, fromDate, page);
             GuardianApiResponseDTO wrapper = apiReader.get(url, GuardianApiResponseDTO.class);
             GuardianResponseDTO response = wrapper.getResponse();
