@@ -7,12 +7,11 @@ import app.daos.TopicDAO;
 import app.server.JavalinServer;
 import app.services.APIReader;
 import app.services.GuardianUrlBuilder;
+import app.services.SyncSchedule;
 import app.services.SyncService;
 import jakarta.persistence.EntityManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.LocalDate;
 
 public class Main {
 
@@ -21,12 +20,12 @@ public class Main {
 
     public static void main(String[] args) {
         EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
-
         SyncService syncService = new SyncService(new ArticleDAO(emf), new TopicDAO(emf), new SourceDAO(emf),
                 new GuardianUrlBuilder(), new APIReader());
+        SyncSchedule syncSchedule = new SyncSchedule(syncService);
 
-        syncService.syncFromDate(LocalDate.now().minusDays(1));
-
+        // Syncs articles from the last day every 30 minutes
+        syncSchedule.start();
 
         JavalinServer.startServer(emf, 7070);
     }
