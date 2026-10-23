@@ -84,7 +84,7 @@ public class SyncService {
                 LocalDate fromDate = (latestPublishedAt != null) ? latestPublishedAt.toLocalDate() : fallBackDate;
 
                 int saved = syncTopic(guardianTopic, topic, source, fromDate);
-                log.info("Synced {} articles from topic {}", saved, guardianTopic);
+                log.info("Synced {} articles from topic {} (from {})", saved, guardianTopic, fromDate);
                 return saved;
             } catch (RuntimeException e) {
                 log.error("Error syncing topic: '{}' | {}", guardianTopic, e.getMessage());
@@ -118,6 +118,10 @@ public class SyncService {
                 }
             }
             page++;
+        }
+        if (totalPages > MaxPagesPerTopic) {
+            log.warn("Topic {} has {} pages but only {} were fetched; older articles may be skipped",
+                    guardianTopic, totalPages, MaxPagesPerTopic);
         }
         return saved;
     }
