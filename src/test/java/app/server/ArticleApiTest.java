@@ -40,7 +40,7 @@ class ArticleApiTest {
     void getArticles_returnsAll_NewestFirst() {
         given()
                 .when()
-                .get("/articles")
+                .get("/api/articles")
                 .then()
                 .statusCode(200)
                 .body("size()", equalTo(2))
@@ -54,7 +54,7 @@ class ArticleApiTest {
     void getArticleById_returnsArticle() {
         given()
                 .when()
-                .get("/articles/{id}", seed.article1().getId())
+                .get("/api/articles/{id}", seed.article1().getId())
                 .then()
                 .statusCode(200)
                 .body("title", equalTo("Scientists find new planet"))
@@ -65,7 +65,7 @@ class ArticleApiTest {
     void getArticleById_invalidId_returns400() {
         given()
                 .when()
-                .get("/articles/abc")
+                .get("/api/articles/abc")
                 .then()
                 .statusCode(400)
                 .body("status", equalTo(400))
@@ -76,7 +76,7 @@ class ArticleApiTest {
     void getArticleById_unknownId_returns404() {
         given()
                 .when()
-                .get("/articles/999999")
+                .get("/api/articles/999999")
                 .then()
                 .statusCode(404)
                 .body("message", containsString("not found"));
@@ -86,13 +86,13 @@ class ArticleApiTest {
     void deleteArticle_removesItAndKeepsDigestLogIntact() {
         Long id = seed.article1().getId();
 
-        given().when().delete("/articles/{id}", id).then().statusCode(200);
-        given().when().get("/articles/{id}", id).then().statusCode(404);
-        given().when().get("/articles").then().statusCode(200).body("size()", equalTo(1));
+        given().when().delete("/api/articles/{id}", id).then().statusCode(200);
+        given().when().get("/api/articles/{id}", id).then().statusCode(404);
+        given().when().get("/api/articles").then().statusCode(200).body("size()", equalTo(1));
     }
 
     @Test
     void deleteArticle_unknownId_returns404() {
-        given().when().delete("/articles/999999").then().statusCode(404);
+        given().when().delete("/api/articles/999999").then().statusCode(404);
     }
 }
