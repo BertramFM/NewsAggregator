@@ -24,6 +24,7 @@ public class User {
     private String email;
 
     @Column(nullable = false)
+    @ToString.Exclude
     private String passwordHash;
 
     @Column(nullable = false)
@@ -35,12 +36,10 @@ public class User {
 
     // ======== Relations ========
     @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Subscription> subscriptions = new ArrayList<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<DigestLog> digestLogs = new ArrayList<>();
     // ===========================
 
 
@@ -59,7 +58,7 @@ public class User {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof User other)) return false;
-        return id != null && id.equals(other.id);
+        return id != null && id.equals(other.getId());
     }
 
     @Override

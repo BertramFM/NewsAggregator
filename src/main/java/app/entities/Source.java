@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "sources")
+@Table(name = "sources", uniqueConstraints = @UniqueConstraint(columnNames = {"sourceName", "apiProvider"}))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,11 +19,11 @@ public class Source {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String sourceName;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private ApiProvider apiProvider;
 
     @Column(nullable = false)

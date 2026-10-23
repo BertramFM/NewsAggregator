@@ -33,7 +33,7 @@ public final class HibernateConfig {
         validate    |	Rører intet, fejler bare hvis skema ikke matcher entities
         none        |  	Gør ingenting — I styrer skemaet 100% selv
          */
-        props.put("hibernate.hbm2ddl.auto", "update");
+        props.put("hibernate.hbm2ddl.auto", "create");
 
         if (System.getenv("DEPLOYED") != null) {
             setDeployedProperties(props);

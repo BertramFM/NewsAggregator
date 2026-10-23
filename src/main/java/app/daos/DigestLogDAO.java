@@ -80,27 +80,27 @@ public class DigestLogDAO implements GenericDAO<DigestLog, Long> {
     }
 
     @Override
-    public DigestLog update(DigestLog DigestLog) {
+    public DigestLog update(DigestLog digestLog) {
 
-        if (DigestLog == null || DigestLog.getId() == null) {
-            throw new ApiException(400, "Movie id is required");
+        if (digestLog == null || digestLog.getId() == null) {
+            throw new ApiException(400, "DigestLog id is required");
         }
 
         DigestLog updated;
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
             try {
-                DigestLog existing = em.find(DigestLog.class, DigestLog.getId());
+                DigestLog existing = em.find(DigestLog.class, digestLog.getId());
                 if (existing == null) {
-                    throw new ApiException(404, "Movie not found");
+                    throw new ApiException(404, "DigestLog not found");
                 }
-                updated = em.merge(DigestLog);
+                updated = em.merge(digestLog);
                 em.getTransaction().commit();
             } catch (PersistenceException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
-                throw new ApiException(500, "Update Movie failed: " + e.getMessage());
+                throw new ApiException(500, "Update DigestLog failed: " + e.getMessage());
             } catch (RuntimeException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
@@ -115,15 +115,15 @@ public class DigestLogDAO implements GenericDAO<DigestLog, Long> {
     public boolean delete(Long id) {
 
         if (id == null) {
-            throw new ApiException(400, "Movie id is required");
+            throw new ApiException(400, "DigestLog id is required");
         }
 
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
             try {
-                DigestLog DigestLogToRemove = em.find(DigestLog.class, id);
-                if (DigestLogToRemove != null) {
-                    em.remove(DigestLogToRemove);
+                DigestLog digestLogToRemove = em.find(DigestLog.class, id);
+                if (digestLogToRemove != null) {
+                    em.remove(digestLogToRemove);
                 } else {
                     throw new ApiException(404, "DigestLog not found");
                 }
@@ -132,7 +132,7 @@ public class DigestLogDAO implements GenericDAO<DigestLog, Long> {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
-                throw new ApiException(500, "Delete Movie failed: " + e.getMessage());
+                throw new ApiException(500, "Delete DigestLog failed: " + e.getMessage());
             } catch (RuntimeException e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();

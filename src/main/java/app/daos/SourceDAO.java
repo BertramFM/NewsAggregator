@@ -81,9 +81,9 @@ public class SourceDAO implements GenericDAO<Source, Long> {
     }
 
     @Override
-    public Source update(Source Source) {
+    public Source update(Source source) {
 
-        if (Source == null || Source.getId() == null) {
+        if (source == null || source.getId() == null) {
             throw new ApiException(400, "Movie id is required");
         }
 
@@ -91,11 +91,11 @@ public class SourceDAO implements GenericDAO<Source, Long> {
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
             try {
-                Source existing = em.find(Source.class, Source.getId());
+                Source existing = em.find(Source.class, source.getId());
                 if (existing == null) {
                     throw new ApiException(404, "Movie not found");
                 }
-                updated = em.merge(Source);
+                updated = em.merge(source);
                 em.getTransaction().commit();
             } catch (PersistenceException e) {
                 if (em.getTransaction().isActive()) {
@@ -122,9 +122,9 @@ public class SourceDAO implements GenericDAO<Source, Long> {
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
             try {
-                Source SourceToRemove = em.find(Source.class, id);
-                if (SourceToRemove != null) {
-                    em.remove(SourceToRemove);
+                Source sourceToRemove = em.find(Source.class, id);
+                if (sourceToRemove != null) {
+                    em.remove(sourceToRemove);
                 } else {
                     throw new ApiException(404, "Source not found");
                 }
