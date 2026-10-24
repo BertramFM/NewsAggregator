@@ -1,12 +1,14 @@
 package app.daos;
 
 import app.entities.DigestLog;
+import app.entities.Frequency;
 import app.exceptions.ApiException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class DigestLogDAO implements GenericDAO<DigestLog, Long> {
@@ -141,5 +143,29 @@ public class DigestLogDAO implements GenericDAO<DigestLog, Long> {
             }
         }
         return true;
+    }
+
+    public boolean existByTopicAndFrequencyPeriod(Long topicId, Frequency frequency, LocalDateTime periodStart) {
+
+        if (topicId == null || frequency == null || periodStart == null) {
+            throw new ApiException(400, "Topic id, frequency and period start are required");
+        }
+
+        try (EntityManager em = emf.createEntityManager()) {
+            try {
+                Long count = em.createQuery(
+                        "SELECT COUNT(d) FROM DigestLog d " +
+                                "WHERE d.topic.id = :topicId " +
+                                "AND d.frequency = :frequency " +
+                                "AND d.periodStart = :periodStart", Long.class)
+                        .setParameter("topicId", topicId)
+                        .setParameter("frequency", frequency)
+                        .setParameter("periodStart", periodStart)
+                        .getSingleResult();
+                return count > 0;
+            } catch (PersistenceException e) {
+                throw new ApiException(500, "Check DigestLog existence failed: " + e.getMessage());
+            }
+        }
     }
 }
