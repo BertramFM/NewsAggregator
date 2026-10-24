@@ -18,7 +18,7 @@ public class SyncSchedule {
     }
 
     public void start() {
-        scheduler.scheduleWithFixedDelay(this::run, 0, 30, TimeUnit.MINUTES);
+        scheduler.scheduleWithFixedDelay(this::run, 0, 45, TimeUnit.MINUTES);
     }
 
     private void run() {
