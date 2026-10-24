@@ -1,5 +1,6 @@
 package app.daos;
 
+import app.entities.Frequency;
 import app.entities.Topic;
 import app.exceptions.ApiException;
 import jakarta.persistence.EntityManager;
@@ -171,6 +172,25 @@ public class TopicDAO implements GenericDAO<Topic, Long> {
                     em.getTransaction().rollback();
                 }
                 throw new ApiException(500, "Find or create Topic failed: " + e.getMessage());
+            }
+        }
+    }
+
+    public List<Topic> findTopicsWithSubscribedUsers(Frequency frequency) {
+        if (frequency == null) {
+            throw new ApiException(400, "Frequency is required");
+        }
+
+        try (EntityManager em = emf.createEntityManager()) {
+            try {
+                return em.createQuery(
+                        "SELECT DISTINCT s.topic FROM Subscription s " +
+                                "WHERE s.frequency = :f " +
+                                "ORDER BY s.topic.topicName DESC", Topic.class)
+                        .setParameter("f", frequency)
+                        .getResultList();
+            } catch (PersistenceException e) {
+                throw new ApiException(500, "Finding topics with subscribers failed: " + e.getMessage());
             }
         }
     }
