@@ -198,4 +198,28 @@ public class ArticleDAO implements GenericDAO<Article, Long> {
             }
         }
     }
+
+    public List<Article> findByTopicAndPeriod(Long topicId, LocalDateTime periodStart,
+                                              LocalDateTime periodEnd, int limit) {
+        if (topicId == null || periodStart == null || periodEnd == null || limit <= 0) {
+            throw new ApiException(400, "Topic id, Period start and end is required. Limit must be a positive integer");
+        }
+
+        try (EntityManager em = emf.createEntityManager()) {
+            try {
+                return em.createQuery("" +
+                        "SELECT a FROM Article a " +
+                        "WHERE a.topic.id = :topicId " +
+                        "AND a.publishedAt >= :start AND a.publishedAt < :end " +
+                        "ORDER BY a.publishedAt DESC", Article.class)
+                        .setParameter("topicId", topicId)
+                        .setParameter("start", periodStart)
+                        .setParameter("end", periodEnd)
+                        .setMaxResults(limit)
+                        .getResultList();
+            } catch (PersistenceException e) {
+                throw new ApiException(500, "Finding articles by topic and period failed: " + e.getMessage());
+            }
+        }
+    }
 }

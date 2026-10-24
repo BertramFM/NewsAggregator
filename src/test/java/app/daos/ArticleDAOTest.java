@@ -126,4 +126,72 @@ class ArticleDAOTest {
         Topic empty = new TopicDAO(emf).create(Topic.builder().topicName("finance").build());
         assertNull(dao.findLatestPublishedAt(empty.getId()));
     }
+
+    // ======== findByTopicAndPeriod ========
+
+    private Article scienceArticle(String externalId, LocalDateTime publishedAt) {
+        return dao.create(Article.builder()
+                .externalId(externalId)
+                .title("Science " + externalId)
+                .publishedAt(publishedAt)
+                .source(seed.source())
+                .topic(seed.science())
+                .build());
+    }
+
+    @Test
+    void findByTopicAndPeriod_returnsOnlyThatTopicInPeriod_newestFirst() {
+        scienceArticle("test/science-20", LocalDateTime.of(2026, 10, 20, 8, 30));
+        scienceArticle("test/science-17", LocalDateTime.of(2026, 10, 17, 23, 59)); // før perioden
+
+        List<Article> result = dao.findByTopicAndPeriod(seed.science().getId(),
+                LocalDateTime.of(2026, 10, 18, 0, 0), LocalDateTime.of(2026, 10, 21, 0, 0), 25);
+
+        // article2 (technology, 19. okt) ligger i perioden, men er et andet emne
+        assertEquals(List.of("test/science-20", "test/article1"),
+                result.stream().map(Article::getExternalId).toList());
+    }
+
+    @Test
+    void findByTopicAndPeriod_respectsLimit() {
+        scienceArticle("test/science-20", LocalDateTime.of(2026, 10, 20, 8, 30));
+
+        List<Article> result = dao.findByTopicAndPeriod(seed.science().getId(),
+                LocalDateTime.of(2026, 10, 18, 0, 0), LocalDateTime.of(2026, 10, 21, 0, 0), 1);
+
+        assertEquals(1, result.size());
+        assertEquals("test/science-20", result.get(0).getExternalId());
+    }
+
+    @Test
+    void findByTopicAndPeriod_startInclusiveEndExclusive() {
+        scienceArticle("test/midnight", LocalDateTime.of(2026, 10, 19, 0, 0));
+
+        List<Article> day18 = dao.findByTopicAndPeriod(seed.science().getId(),
+                LocalDateTime.of(2026, 10, 18, 0, 0), LocalDateTime.of(2026, 10, 19, 0, 0), 25);
+        List<Article> day19 = dao.findByTopicAndPeriod(seed.science().getId(),
+                LocalDateTime.of(2026, 10, 19, 0, 0), LocalDateTime.of(2026, 10, 20, 0, 0), 25);
+
+        // Artiklen præcis ved midnat hører kun til den nye dag
+        assertEquals(List.of("test/article1"), day18.stream().map(Article::getExternalId).toList());
+        assertEquals(List.of("test/midnight"), day19.stream().map(Article::getExternalId).toList());
+    }
+
+    @Test
+    void findByTopicAndPeriod_emptyWhenNoArticlesInPeriod() {
+        assertTrue(dao.findByTopicAndPeriod(seed.technology().getId(),
+                LocalDateTime.of(2026, 10, 1, 0, 0), LocalDateTime.of(2026, 10, 2, 0, 0), 25).isEmpty());
+    }
+
+    @Test
+    void findByTopicAndPeriod_throwsOnInvalidInput() {
+        LocalDateTime start = LocalDateTime.of(2026, 10, 18, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2026, 10, 19, 0, 0);
+        Long topicId = seed.science().getId();
+
+        assertThrows(ApiException.class, () -> dao.findByTopicAndPeriod(null, start, end, 25));
+        assertThrows(ApiException.class, () -> dao.findByTopicAndPeriod(topicId, null, end, 25));
+        assertThrows(ApiException.class, () -> dao.findByTopicAndPeriod(topicId, start, null, 25));
+        assertThrows(ApiException.class, () -> dao.findByTopicAndPeriod(topicId, start, end, 0));
+    }
 }
