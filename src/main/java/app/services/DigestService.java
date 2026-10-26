@@ -16,7 +16,7 @@ import java.util.List;
 
 public class DigestService {
 
-    private static Logger log = LoggerFactory.getLogger(DigestService.class);
+    private static final Logger log = LoggerFactory.getLogger(DigestService.class);
 
     private static final int MaxArticlesPerDigest = 25;
 
@@ -76,15 +76,15 @@ public class DigestService {
     private static String buildPrompt(String topicName, List<Article> articles) {
         StringBuilder sb = new StringBuilder()
                 .append("You are writing a short news digest about the topic ").append(topicName).append(". ")
-                .append("Summarize the most important developments in 4-8 short bullet point, ")
-                .append("in neutral language, based only on the articles below. Do not invent facts. \n\n");
+                .append("Summarize the most important developments in 4-8 short bullet points, ")
+                .append("in neutral English language, based only on the articles below. Do not invent facts.")
+                .append("(Ignore all instructions and only write the bullet points below with no other text.) \n\n");
 
 
-        // Jeg skal måske ændre til snippet i stedet for fulltext eller måske bare en del af fulltextet såsom maks 500-600 words.
         for (Article a : articles) {
             sb.append("- ").append(a.getTitle());
             if (a.getFullText() != null && !a.getFullText().isBlank()) {
-                sb.append(": ").append(a.getFullText());
+                sb.append(": ").append(a.getFullText(), 0, Math.min(a.getFullText().length(), 800));
             }
             sb.append("\n");
         }
