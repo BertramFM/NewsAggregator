@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class ArticleSummarySentimentSchedule {
     private static final Logger log = LoggerFactory.getLogger(ArticleSummarySentimentSchedule.class);
 
-    private static final int MAX_BATCHES_PER_RUN = 5;
+    private static final int MAX_BATCHES_PER_RUN = 3;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final ArticleSummarySentimentService service;
 
