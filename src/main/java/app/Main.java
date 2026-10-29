@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 public class Main {
 
     private static final Logger log = LoggerFactory.getLogger(Main.class);
-    private static final Logger debugLogger = LoggerFactory.getLogger("app");
 
     public static void main(String[] args) {
         EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
@@ -27,9 +26,11 @@ public class Main {
         ArticleSummarySentimentService summaryService = new ArticleSummarySentimentService(new ArticleDAO(emf), aiClient);
         ArticleSummarySentimentSchedule summarySchedule = new ArticleSummarySentimentSchedule(summaryService);
 
-        // Syncs articles from the last day every 45 minutes
+        // Syncs articles every 45 minutes from The Guardian
         syncSchedule.start();
+        // Creates summaries of the previous day's articles based on Topic. Only if there are users subscribed to the topic.
         digestSchedule.start();
+        // Creates summaries and sentiment scores for articles that don't have them yet. every 15 minutes.
         summarySchedule.start();
 
 

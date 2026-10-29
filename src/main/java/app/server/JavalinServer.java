@@ -29,6 +29,8 @@ public class JavalinServer {
             config.routes.get("api/articles/{id}", articleController::getById);
             config.routes.delete("api/articles/{id}", articleController::delete);
 
+            config.routes.get("api/health", ctx -> ctx.result("OK"));
+
             config.routes.exception(ApiException.class, (e, ctx) -> {
                 ctx.status(e.getCode());
                 ctx.json(Map.of("status", e.getCode(), "message", e.getMessage()));
