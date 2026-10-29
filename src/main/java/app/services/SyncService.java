@@ -139,7 +139,7 @@ public class SyncService {
         }
         // checks if article already exists in db using Guardian apis provided article id
         if (articleDAO.existsByExternalId(articleDTO.getId())){
-            log.info("Article already exists: {} | {}", articleDTO.getId(), articleDTO.getType());
+            // log.info("Article already exists: {} | {}", articleDTO.getId(), articleDTO.getType());
             return false;
         }
 
