@@ -1,5 +1,10 @@
 package app.services;
 
+@FunctionalInterface
 public interface AiClient {
-    String generate(String prompt);
+    public abstract String generateText(String prompt);
+
+    default String generateJson(String prompt) {
+        return generateText(prompt);
+    }
 }
