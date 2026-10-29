@@ -46,11 +46,11 @@ public class ArticleDAO implements GenericDAO<Article, Long> {
         try (EntityManager em = emf.createEntityManager()) {
             try {
                 return em.createQuery("""
-                SELECT a FROM Article a
-                JOIN FETCH a.source
-                JOIN FETCH a.topic
-                WHERE a.id = :id
-                """, Article.class).setParameter("id", id)
+                                SELECT a FROM Article a
+                                JOIN FETCH a.source
+                                JOIN FETCH a.topic
+                                WHERE a.id = :id
+                                """, Article.class).setParameter("id", id)
                         .getResultStream()
                         .findFirst()
                         .orElse(null);
@@ -65,11 +65,11 @@ public class ArticleDAO implements GenericDAO<Article, Long> {
         try (EntityManager em = emf.createEntityManager()) {
             try {
                 TypedQuery<Article> query = em.createQuery("""
-                SELECT a FROM Article a
-                JOIN FETCH a.source
-                JOIN FETCH a.topic
-                ORDER BY a.publishedAt DESC
-                """, Article.class);
+                        SELECT a FROM Article a
+                        JOIN FETCH a.source
+                        JOIN FETCH a.topic
+                        ORDER BY a.publishedAt DESC
+                        """, Article.class);
                 return query.getResultList();
             } catch (PersistenceException e) {
                 throw new ApiException(500, "Get Article failed: " + e.getMessage());
@@ -160,7 +160,7 @@ public class ArticleDAO implements GenericDAO<Article, Long> {
                 }
 
                 List<DigestLog> digestLogs = em.createQuery(
-                        "SELECT d FROM DigestLog d JOIN d.articles a WHERE a.id = :id", DigestLog.class)
+                                "SELECT d FROM DigestLog d JOIN d.articles a WHERE a.id = :id", DigestLog.class)
                         .setParameter("id", id)
                         .getResultList();
 
@@ -189,8 +189,8 @@ public class ArticleDAO implements GenericDAO<Article, Long> {
         try (EntityManager em = emf.createEntityManager()) {
             try {
                 return em.createQuery(
-                        "SELECT MAX(a.publishedAt) FROM Article a WHERE a.topic.id = :topicId",
-                        LocalDateTime.class)
+                                "SELECT MAX(a.publishedAt) FROM Article a WHERE a.topic.id = :topicId",
+                                LocalDateTime.class)
                         .setParameter("topicId", topicId)
                         .getSingleResult();
             } catch (PersistenceException e) {
@@ -208,17 +208,68 @@ public class ArticleDAO implements GenericDAO<Article, Long> {
         try (EntityManager em = emf.createEntityManager()) {
             try {
                 return em.createQuery("" +
-                        "SELECT a FROM Article a " +
-                        "WHERE a.topic.id = :topicId " +
-                        "AND a.publishedAt >= :start AND a.publishedAt < :end " +
-                        "ORDER BY a.publishedAt DESC", Article.class)
-                        .setParameter("topicId", topicId)
-                        .setParameter("start", periodStart)
-                        .setParameter("end", periodEnd)
+                    "SELECT a FROM Article a " +
+                    "WHERE a.topic.id = :topicId " +
+                    "AND a.publishedAt >= :start AND a.publishedAt < :end " +
+                    "ORDER BY a.publishedAt DESC", Article.class)
+                    .setParameter("topicId", topicId)
+                    .setParameter("start", periodStart)
+                    .setParameter("end", periodEnd)
+                    .setMaxResults(limit)
+                    .getResultList();
+            } catch (PersistenceException e) {
+                throw new ApiException(500, "Finding articles by topic and period failed: " + e.getMessage());
+            }
+        }
+    }
+
+    public List<Article> findArticleWithoutSummaryAndSentiment(int limit) {
+        if (limit <= 0) {
+            throw new ApiException(400, "Limit must be a positive integer");
+        }
+        try (EntityManager em = emf.createEntityManager()) {
+            try {
+                return em.createQuery("""
+                        SELECT a FROM Article a
+                        WHERE a.aiSummary IS NULL OR a.sentimentScore IS NULL
+                        ORDER BY a.publishedAt DESC
+                        """, Article.class)
                         .setMaxResults(limit)
                         .getResultList();
             } catch (PersistenceException e) {
-                throw new ApiException(500, "Finding articles by topic and period failed: " + e.getMessage());
+                throw new ApiException(500, "Find articles without summary and sentiment failed: " + e.getMessage());
+            }
+        }
+    }
+
+    public void updateArticleSummaryAndSentiment(Long id, String aiSummary, Double sentimentScore) {
+        if (id == null) {
+            throw new ApiException(400, "Article id is required");
+        }
+        try (EntityManager em = emf.createEntityManager()) {
+            em.getTransaction().begin();
+            try {
+                int rows = em.createQuery("""
+                        UPDATE Article a
+                        SET a.aiSummary = :summary, a.sentimentScore = :score
+                        WHERE a.id = :id
+                        """)
+                        .setParameter("summary", aiSummary)
+                        .setParameter("score", sentimentScore)
+                        .setParameter("id", id)
+                        .executeUpdate();
+                if (rows == 0) {
+                    throw new ApiException(404, "Article not found");
+                }
+                em.getTransaction().commit();
+            } catch (RuntimeException e) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                if (e instanceof ApiException) {
+                    throw e;
+                }
+                throw new ApiException(500, "Update summary and sentiment failed: " + e.getMessage());
             }
         }
     }
