@@ -11,14 +11,15 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class GeminiClient implements AiClient {
     private static final Logger log = LoggerFactory.getLogger(GeminiClient.class);
 
-    private static final String MODEL = "gemini-3.5-flash-lite";
     private static final String BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/";
+    private static final String MODEL = "gemini-3.5-flash-lite";
     private static final String endpoint = BASE_URL + MODEL + ":generateContent";
 
     private final String apiKey;
@@ -33,14 +34,28 @@ public class GeminiClient implements AiClient {
     }
 
     @Override
-    public String generate(String prompt) {
+    public String generateText(String prompt) {
+        return send(prompt, false);
+    }
+
+    @Override
+    public String generateJson(String prompt) {
+        return send(prompt, true);
+    }
+
+
+    private String send(String prompt, boolean isJson) {
         if (prompt == null || prompt.isBlank()) {
             throw new ApiException(400, "Prompt is required");
         }
 
         try {
-            Map<String, Object> body = Map.of(
-                    "contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))));
+            Map<String, Object> body = new HashMap<>();
+            body.put("contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))));
+
+            if (isJson) {
+                body.put("generationConfig", Map.of("responseMimeType", "application/json"));
+            }
 
             String jsonBody = objectMapper.writeValueAsString(body);
 
