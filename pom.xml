@@ -14,35 +14,42 @@
         <lombok.version>1.18.46</lombok.version>
         <hibernate-version>7.2.3.Final</hibernate-version>
         <junit.version>6.0.2</junit.version>
-        <postgres.version>42.7.7</postgres.version>
+        <postgres.version>42.7.14</postgres.version>
         <testcontainers.version>2.0.3</testcontainers.version>
         <logback-classic>1.6.3</logback-classic>
         <hamcrest>3.0</hamcrest>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>io.javalin</groupId>
             <artifactId>javalin</artifactId>
-            <version>7.2.3</version>
+            <version>7.2.4</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.22.2</version>
+            <version>2.22.4</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.22.2</version>
+            <version>2.22.4</version>
         </dependency>
 
         <dependency>
             <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>3.2.3</version>
+            <version>3.2.4</version>
             <scope>compile</scope>
         </dependency>
 
@@ -70,6 +77,19 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!--  SECURITY    -->
+        <dependency>
+            <groupId>com.github.Hartmannsolution</groupId>
+            <artifactId>TokenSecurity</artifactId>
+            <version>1.0.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
         </dependency>
 
         <!--  TESTING      -->
