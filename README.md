@@ -1,4 +1,4 @@
-# NewsAggregator+
+# NewsAggregator
 
 ## Vision
 
