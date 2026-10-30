@@ -241,17 +241,14 @@ Response `200 OK`:
     "snippet": "A new chip was announced...",
     "publishedAt": "2026-10-29T12:00:00",
     "sourceUrl": "https://www.theguardian.com/technology/...",
-    "sourceName": "The Guardian",
-    "topicName": "technology",
-    "sentimentScore": 0.4,
-    "aiSummary": "A company announced a new chip..."
+    "topicName": "technology"
   }
 ]
 ```
 
 ### GET /api/articles/{id} (USER)
 
-Same fields as above plus `fullText`. Errors: `400` if the id is not a number, `401` without token, `404` if the article does not exist.
+Same fields as above plus `fullText`, `sourceName`, `sentimentScore` and `aiSummary`. Errors: `400` if the id is not a number, `401` without token, `404` if the article does not exist.
 
 ### DELETE /api/articles/{id} (ADMIN)
 
@@ -304,10 +301,10 @@ Response `200 OK`:
 
 # User Stories
 
-1. As a visitor, I want to browse the latest news articles with a short AI summary and a sentiment score, so I can quickly see what
-   is happening and the tone of the news.
+1. As a visitor, I want to browse the latest news headlines and snippets, so I can quickly see what is happening.
 2. As a visitor, I want to create an account and log in, so I can get personal content.
-3. As a user, I want to open one article and read the full text.
+3. As a user, I want to open one article and read the full text with an AI summary and a sentiment score, so I can see
+   the tone of the news.
 4. As a user, I want to subscribe to a topic daily or weekly, so I get news about what interests me.
 5. As a user, I want to see and remove my subscriptions.
 6. As a user, I want to read AI-written digests for the topics I subscribe to, so I do not have to read every article.

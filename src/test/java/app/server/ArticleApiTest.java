@@ -51,7 +51,6 @@ class ArticleApiTest {
                 .statusCode(200)
                 .body("size()", equalTo(2))
                 .body("[0].title", equalTo("New chip announced"))
-                .body("[0].sourceName", equalTo("The Guardian"))
                 .body("[0].topicName", equalTo("technology"))
                 .body("[0].publishedAt", startsWith("2026-10-19T12:00"));
     }
