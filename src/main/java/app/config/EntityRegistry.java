@@ -14,5 +14,6 @@ final class EntityRegistry {
         configuration.addAnnotatedClass(User.class);
         configuration.addAnnotatedClass(Subscription.class);
         configuration.addAnnotatedClass(Source.class);
+        configuration.addAnnotatedClass(Role.class);
     }
 }
