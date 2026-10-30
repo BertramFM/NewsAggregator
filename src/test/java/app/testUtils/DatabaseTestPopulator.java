@@ -67,7 +67,7 @@ public class DatabaseTestPopulator {
             em.getTransaction().begin();
             try {
                 em.createNativeQuery(
-                        "TRUNCATE TABLE digest_articles, digest_logs, subscriptions, users, "
+                        "TRUNCATE TABLE digest_articles, digest_logs, subscriptions, user_roles, users, roles, "
                                 + "articles, topics, sources RESTART IDENTITY CASCADE").executeUpdate();
 
                 em.persist(guardian);
