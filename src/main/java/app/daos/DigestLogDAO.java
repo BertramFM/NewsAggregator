@@ -168,4 +168,25 @@ public class DigestLogDAO implements GenericDAO<DigestLog, Long> {
             }
         }
     }
+
+    public List<DigestLog> findForUser(String email) {
+        if (email == null) {
+            throw new ApiException(400, "Email is required");
+        }
+        try (EntityManager em = emf.createEntityManager()) {
+            try {
+                return em.createQuery(
+                                "SELECT d FROM DigestLog d " +
+                                "JOIN FETCH d.topic t " +
+                                "JOIN Subscription s ON s.topic = d.topic AND s.frequency = d.frequency " +
+                                "WHERE s.user.email = :email " +
+                                "AND d.generatedAt >= s.createdAt " +
+                                "ORDER BY d.periodStart DESC, t.topicName", DigestLog.class)
+                        .setParameter("email", email)
+                        .getResultList();
+            } catch (PersistenceException e) {
+                throw new ApiException(500, "Get digests for user failed: " + e.getMessage());
+            }
+        }
+    }
 }
