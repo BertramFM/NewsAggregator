@@ -1,20 +1,133 @@
-### hent alle
+### register ny bruger (forventer 201 + token) + (forventer 409 ved at prøve igen)
+POST localhost:7070/api/auth/register
+Content-Type: application/json
 
-GET localhost:7070/articles
-Accept: application/json
+{
+  "email": "Anna@NewsSite.com",
+  "userName": "anna",
+  "password": "Hemmelig1!"
+}
+
+### register med svagt password (forventer 400 + fejlbesked)
+POST localhost:7070/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "bo@newssite.com",
+  "userName": "bo",
+  "password": "kort"
+}
+
+### login (forventer 200 + token)
+POST localhost:7070/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "anna@newssite.com",
+  "password": "Hemmelig1!"
+}
+
+> {% client.global.set("Usertoken", response.body.token); %}
+
+### slet artikel som USER (forventer 403)
+DELETE localhost:7070/api/articles/2
+Authorization: Bearer {{Usertoken}}
+
+### slet artikel uden token (forventer 401)
+DELETE localhost:7070/api/articles/1
 
 ### hent med id format fejl
-
-GET localhost:7070/article/abc
+GET localhost:7070/api/articles/abc
 Accept: application/json
+Authorization: Bearer {{Usertoken}}
 
 ### hent med forkert id
-
-GET localhost:7070/article/9999999999
+GET localhost:7070/api/articles/9999999999
 Accept: application/json
+Authorization: Bearer {{Usertoken}}
 
 ### hent med id korrekt
+GET localhost:7070/api/articles/1
+Accept: application/json
+Authorization: Bearer {{Usertoken}}
 
-GET localhost:7070/article/1
+### hent alle artikler ANYONE
+GET localhost:7070/api/articles
 Accept: application/json
 
+
+// ==== SUBSCRIPTIONS ====
+### abonnér på technology DAILY (forventer 201)
+POST localhost:7070/api/subscriptions
+Content-Type: application/json
+Authorization: Bearer {{Usertoken}}
+
+{
+  "topicName": "technology",
+  "frequency": "DAILY"
+}
+
+### abonnér på samme emne igen med anden frekvens (forventer 409)
+POST localhost:7070/api/subscriptions
+Content-Type: application/json
+Authorization: Bearer {{Usertoken}}
+
+{
+  "topicName": "technology",
+  "frequency": "WEEKLY"
+}
+
+### abonnér på ukendt emne (forventer 404)
+POST localhost:7070/api/subscriptions
+Content-Type: application/json
+Authorization: Bearer {{Usertoken}}
+
+{
+  "topicName": "bananer",
+  "frequency": "DAILY"
+}
+
+### abonnér med ukendt frekvens (forventer 400)
+POST localhost:7070/api/subscriptions
+Content-Type: application/json
+Authorization: Bearer {{Usertoken}}
+
+{
+  "topicName": "science",
+  "frequency": "MONTHLY"
+}
+
+### hent mine abonnementer (forventer 200)
+GET localhost:7070/api/subscriptions
+Accept: application/json
+Authorization: Bearer {{Usertoken}}
+
+### hent abonnementer uden token (forventer 401)
+GET localhost:7070/api/subscriptions
+Accept: application/json
+
+### slet mit abonnement på technology (forventer 200)
+DELETE localhost:7070/api/subscriptions/technology
+Authorization: Bearer {{Usertoken}}
+
+### slet samme abonnement igen (forventer 404)
+DELETE localhost:7070/api/subscriptions/technology
+Authorization: Bearer {{Usertoken}}
+
+
+
+// ==== ADMIN ====
+### login (forventer 200 + token)
+POST localhost:7070/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "Admin@newssite.com",
+  "password": "Hemmelig2!"
+}
+
+> {% client.global.set("tokenAdmin", response.body.token); %}
+
+### slet artikel som Admin (forventer SUCCES)
+DELETE localhost:7070/api/articles/4
+Authorization: Bearer {{tokenAdmin}}
