@@ -1,6 +1,7 @@
 package app;
 
 import app.config.HibernateConfig;
+import app.config.TokenSettings;
 import app.daos.ArticleDAO;
 import app.daos.DigestLogDAO;
 import app.daos.SourceDAO;
@@ -8,13 +9,8 @@ import app.daos.TopicDAO;
 import app.server.JavalinServer;
 import app.services.*;
 import jakarta.persistence.EntityManagerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Main {
-
-    private static final Logger log = LoggerFactory.getLogger(Main.class);
-
     public static void main(String[] args) {
         EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
         SyncService syncService = new SyncService(new ArticleDAO(emf), new TopicDAO(emf), new SourceDAO(emf),
@@ -34,6 +30,6 @@ public class Main {
         summarySchedule.start();
 
 
-        JavalinServer.startServer(emf, 7070);
+        JavalinServer.startServer(emf, 7070, TokenSettings.fromEnvironment());
     }
 }
