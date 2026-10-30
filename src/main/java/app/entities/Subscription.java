@@ -4,6 +4,8 @@ package app.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 // Burde gøre så man kun kan abonnere på et topic en gang
 @Table(name = "subscriptions",
@@ -22,6 +24,10 @@ public class Subscription {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Frequency frequency;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     // ======== Relations ========
     @ManyToOne(fetch = FetchType.LAZY)
