@@ -114,6 +114,16 @@ Authorization: Bearer {{Usertoken}}
 DELETE localhost:7070/api/subscriptions/technology
 Authorization: Bearer {{Usertoken}}
 
+// ==== DIGESTS ====
+### hent mine digests (forventer 200)
+GET localhost:7070/api/digests
+Accept: application/json
+Authorization: Bearer {{Usertoken}}
+
+### hent digests uden token (forventer 401)
+GET localhost:7070/api/digests
+Accept: application/json
+
 
 
 // ==== ADMIN ====
