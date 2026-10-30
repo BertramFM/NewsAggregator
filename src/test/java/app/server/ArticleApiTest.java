@@ -17,7 +17,7 @@ class ArticleApiTest {
     private static final int PORT = 7777;
     private static final String PASSWORD = "Hemmelig1!";
     private static final TokenSettings TEST_TOKEN_SETTINGS =
-            new TokenSettings("the32CharSecretToken", "test", "3600000");
+            new TokenSettings("the-most-secret-key-that-is-at-least-32-chars-long", "test", "3600000");
     private static SecurityDAO securityDAO;
     private static EntityManagerFactory emf;
     private static Javalin app;
