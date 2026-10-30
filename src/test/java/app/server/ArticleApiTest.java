@@ -17,7 +17,7 @@ class ArticleApiTest {
     private static final int PORT = 7777;
     private static final String PASSWORD = "Hemmelig1!";
     private static final TokenSettings TEST_TOKEN_SETTINGS =
-            new TokenSettings("test-secret-key-that-is-at-least-32-chars", "test", "3600000");
+            new TokenSettings("the32CharSecretToken", "test", "3600000");
     private static SecurityDAO securityDAO;
     private static EntityManagerFactory emf;
     private static Javalin app;
@@ -59,6 +59,7 @@ class ArticleApiTest {
     @Test
     void getArticleById_returnsArticle() {
         given()
+                .auth().oauth2(userToken())
                 .when()
                 .get("/api/articles/{id}", seed.article1().getId())
                 .then()
@@ -70,6 +71,7 @@ class ArticleApiTest {
     @Test
     void getArticleById_invalidId_returns400() {
         given()
+                .auth().oauth2(userToken())
                 .when()
                 .get("/api/articles/abc")
                 .then()
@@ -81,11 +83,21 @@ class ArticleApiTest {
     @Test
     void getArticleById_unknownId_returns404() {
         given()
+                .auth().oauth2(userToken())
                 .when()
                 .get("/api/articles/999999")
                 .then()
                 .statusCode(404)
                 .body("message", containsString("not found"));
+    }
+
+    @Test
+    void getArticleById_withoutToken_returns401() {
+        given()
+                .when()
+                .get("/api/articles/{id}", seed.article1().getId())
+                .then()
+                .statusCode(401);
     }
 
     private String login(String email) {
@@ -114,9 +126,10 @@ class ArticleApiTest {
     @Test
     void deleteArticle_removesItAndKeepsDigestLogIntact() {
         Long id = seed.article1().getId();
+        String token = adminToken();
 
-        given().auth().oauth2(adminToken()).when().delete("/api/articles/{id}", id).then().statusCode(200);
-        given().when().get("/api/articles/{id}", id).then().statusCode(404);
+        given().auth().oauth2(token).when().delete("/api/articles/{id}", id).then().statusCode(200);
+        given().auth().oauth2(token).when().get("/api/articles/{id}", id).then().statusCode(404);
         given().when().get("/api/articles").then().statusCode(200).body("size()", equalTo(1));
     }
 

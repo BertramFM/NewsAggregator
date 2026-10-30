@@ -248,9 +248,9 @@ Response `200 OK`:
 ]
 ```
 
-### GET /api/articles/{id}
+### GET /api/articles/{id} (USER)
 
-Same fields as above plus `fullText`. Errors: `400` if the id is not a number, `404` if the article does not exist.
+Same fields as above plus `fullText`. Errors: `400` if the id is not a number, `401` without token, `404` if the article does not exist.
 
 ### DELETE /api/articles/{id} (ADMIN)
 
@@ -305,8 +305,8 @@ Response `200 OK`:
 
 1. As a visitor, I want to browse the latest news articles with a short AI summary and a sentiment score, so I can quickly see what
    is happening and the tone of the news.
-2. As a visitor, I want to open one article and read the full text.
-3. As a visitor, I want to create an account and log in, so I can get personal content.
+2. As a visitor, I want to create an account and log in, so I can get personal content.
+3. As a user, I want to open one article and read the full text.
 4. As a user, I want to subscribe to a topic daily or weekly, so I get news about what interests me.
 5. As a user, I want to see and remove my subscriptions.
 6. As a user, I want to read AI-written digests for the topics I subscribe to, so I do not have to read every article.
