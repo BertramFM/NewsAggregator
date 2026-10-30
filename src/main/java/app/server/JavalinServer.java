@@ -42,7 +42,7 @@ public class JavalinServer {
             config.routes.post("api/auth/login", securityController::login, AppRole.ANYONE, AppRole.ADMIN, AppRole.USER);
 
             config.routes.get("api/articles", articleController::getArticles, AppRole.ANYONE, AppRole.ADMIN, AppRole.USER);
-            config.routes.get("api/articles/{id}", articleController::getById, AppRole.ANYONE, AppRole.USER, AppRole.ADMIN);
+            config.routes.get("api/articles/{id}", articleController::getById, AppRole.USER, AppRole.ADMIN);
 
             config.routes.delete("api/articles/{id}", articleController::delete, AppRole.ADMIN);
 
