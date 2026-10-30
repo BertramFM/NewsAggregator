@@ -2,10 +2,14 @@ package app.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -25,9 +29,10 @@ public class User {
 
     @Column(nullable = false)
     @ToString.Exclude
+    @Setter(AccessLevel.NONE)
     private String passwordHash;
 
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
     private String userName;
 
     @Builder.Default
@@ -40,8 +45,35 @@ public class User {
     @ToString.Exclude
     private List<Subscription> subscriptions = new ArrayList<>();
 
+    @Builder.Default
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_roles",
+    joinColumns = @JoinColumn(name = "user_id"),
+    inverseJoinColumns = @JoinColumn(name = "role_name"))
+    @ToString.Exclude
+    private Set<Role> roles = new HashSet<>();
+
     // ===========================
 
+    public void changePassword(String plainPassword) {
+        this.passwordHash = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
+    }
+
+    public boolean checkPassword(String plainPassword) {
+        return BCrypt.checkpw(plainPassword, passwordHash);
+    }
+
+    public void addRole(Role role) {
+        roles.add(role);
+    }
+
+    public void removeRole(Role role) {
+        roles.remove(role);
+    }
+
+    public Set<String> getRolesAsString() {
+        return roles.stream().map(Role::getRoleName).collect(Collectors.toSet());
+    }
 
     public void addSubscription(Subscription subscription) {
         subscriptions.add(subscription);
