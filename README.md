@@ -8,7 +8,7 @@ and gives each user a digest of the topics they subscribe to, daily or weekly.
 ## Links
 
 - Deployed application: https://news.codeshow.dk (API under `/api`, e.g. https://news.codeshow.dk/api/articles)
-- Source code repository: https://github.com/BertramFM/NewsSite
+- Source code repository: https://github.com/BertramFM/NewsAggregator
 - Portfolio website: https://bertramfm.github.io/hugoPortfolio/
 
 # Architecture
