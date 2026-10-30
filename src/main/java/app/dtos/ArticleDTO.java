@@ -23,10 +23,10 @@ public class ArticleDTO {
     private String snippet;
     private LocalDateTime publishedAt;
     private String sourceUrl;
-    private String sourceName;
+//    private String sourceName;
     private String topicName;
-    private Double sentimentScore;
-    private String aiSummary;
+//    private Double sentimentScore;
+//    private String aiSummary;
 
     public ArticleDTO(Article article) {
         this.id = article.getId();
@@ -35,11 +35,11 @@ public class ArticleDTO {
         this.snippet = article.getSnippet();
         this.publishedAt = article.getPublishedAt();
         this.sourceUrl = article.getSourceUrl();
-        this.sourceName = article.getSource().getSourceName();
+//        this.sourceName = article.getSource().getSourceName();
 
         this.topicName = article.getTopic().getTopicName();
-
-        this.sentimentScore = article.getSentimentScore();
-        this.aiSummary = article.getAiSummary();
+//
+//        this.sentimentScore = article.getSentimentScore();
+//        this.aiSummary = article.getAiSummary();
     }
 }
