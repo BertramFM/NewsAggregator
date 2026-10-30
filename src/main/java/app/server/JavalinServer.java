@@ -1,7 +1,12 @@
 package app.server;
 
+import app.config.TokenSettings;
 import app.controllers.ArticleController;
+import app.controllers.SecurityController;
+import app.controllers.SubscriptionController;
 import app.daos.ArticleDAO;
+import app.daos.SecurityDAO;
+import app.daos.SubscriptionDAO;
 import app.exceptions.ApiException;
 import io.javalin.Javalin;
 import io.javalin.json.JavalinJackson;
@@ -16,8 +21,10 @@ import java.util.Map;
 public class JavalinServer {
     private static final Logger log = LoggerFactory.getLogger(JavalinServer.class);
 
-    public static Javalin startServer(EntityManagerFactory emf, int serverPort) {
+    public static Javalin startServer(EntityManagerFactory emf, int serverPort, TokenSettings tokenSettings) {
         ArticleController articleController = new ArticleController(new ArticleDAO(emf));
+        SecurityController securityController = new SecurityController(new SecurityDAO(emf), tokenSettings);
+        SubscriptionController subscriptionController = new SubscriptionController(new SubscriptionDAO(emf));
 
         return Javalin.start(config -> {
             config.jetty.port = serverPort;
@@ -25,11 +32,22 @@ public class JavalinServer {
             config.jsonMapper(new JavalinJackson().updateMapper(mapper ->
                     mapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)));
 
-            config.routes.get("api/articles", articleController::getArticles);
-            config.routes.get("api/articles/{id}", articleController::getById);
-            config.routes.delete("api/articles/{id}", articleController::delete);
+            config.routes.beforeMatched(securityController::authenticate);
+            config.routes.beforeMatched(securityController::authorize);
 
-            config.routes.get("api/health", ctx -> ctx.result("OK"));
+            config.routes.post("api/auth/register", securityController::register, AppRole.ANYONE, AppRole.ADMIN, AppRole.USER);
+            config.routes.post("api/auth/login", securityController::login, AppRole.ANYONE, AppRole.ADMIN, AppRole.USER);
+
+            config.routes.get("api/articles", articleController::getArticles, AppRole.ANYONE, AppRole.ADMIN, AppRole.USER);
+            config.routes.get("api/articles/{id}", articleController::getById, AppRole.ANYONE, AppRole.USER, AppRole.ADMIN);
+
+            config.routes.delete("api/articles/{id}", articleController::delete, AppRole.ADMIN);
+
+            config.routes.post("api/subscriptions", subscriptionController::create, AppRole.USER);
+            config.routes.get("api/subscriptions", subscriptionController::getMine, AppRole.USER);
+            config.routes.delete("api/subscriptions/{topicName}", subscriptionController::delete, AppRole.USER);
+
+            config.routes.get("api/health", ctx -> ctx.result("OK"), AppRole.ANYONE);
 
             config.routes.exception(ApiException.class, (e, ctx) -> {
                 ctx.status(e.getCode());
