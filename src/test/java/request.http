@@ -47,7 +47,7 @@ Accept: application/json
 Authorization: Bearer {{Usertoken}}
 
 ### hent med id korrekt
-GET localhost:7070/api/articles/1
+GET localhost:7070/api/articles/10
 Accept: application/json
 Authorization: Bearer {{Usertoken}}
 
