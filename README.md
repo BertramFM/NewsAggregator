@@ -77,14 +77,14 @@ flowchart LR
 - **One subscription per user per topic.** `subscriptions` is unique on (user, topic). This lets the API identify a subscription by
   topic name: `DELETE /api/subscriptions/technology`.
 - **Authentication with JWT, passwords with bcrypt.** Login returns a signed JWT with the user's email and roles.
-  Two `beforeMatched` filters run before every route: `authenticate` (valid token? otherwise 401) and `authorize` (required role?
-  otherwise 403). Passwords are only stored as bcrypt hashes; hashing happens in `User.changePassword`.
-- The token settings (`SECRET_KEY`, `ISSUER`, `TOKEN_EXPIRE_TIME`) are read once at startup and injected, so tests and CI
+  Two `beforeMatched` filters run before every route: `authenticate` (Token) and `authorize` (Role). 
+  Passwords are only stored as bcrypt hashes; hashing happens in `User.changePassword`.
+- The token settings (`SECRET_KEY`, `ISSUER`, `TOKEN_EXPIRE_TIME`) are read once at startup and injected, so tests and delpoyment
   can use their own values.
 - **Roles as many-to-many.** A user can have several roles (an admin is also a USER), so each route requires exactly one role.
 - **Uniform error handling.** Controllers and DAOs throw `ApiException(status, message)`. One exception handler turns it into
   `{"status": ..., "message": ...}`; anything unexpected becomes a 500 with a generic message and is logged.
-- **AI behind an interface.** `AiClient` has one method, so tests use a lambda as a fake and never call Gemini.
+- **AI behind an interface.** `AiClient` has one method, so tests use a lambda as a fake and never call Gemini. also makes it easy to implement another AI provider later.
   Article texts are sent to Gemini as data with an instruction to ignore instructions inside them. No user data is sent to Gemini.
 - **Concurrency where it helps.** The Guardian sync runs one task per topic in a fixed thread pool of 3, with a timeout per topic,
   so one slow topic does not block the others.
@@ -201,6 +201,7 @@ Protected routes need the header `Authorization: Bearer <token>` from login or r
 | DELETE | `/subscriptions/{topicName}` | USER   | Unsubscribe from a topic |
 | GET | `/digests` | USER   | Digests for my subscriptions |
 | GET | `/health` | anyone | Liveness check, returns `OK` |
+Everything can be tested in the request.http class 
 
 ## Example Endpoints
 
